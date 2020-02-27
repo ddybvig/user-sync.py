@@ -375,6 +375,7 @@ def store():
     This is an automated process
     """
     credential_manager = CredentialManager()
+    credential_manager.store()
     click.echo("Using backend: " + credential_manager.keyring_name)
     click.echo("You have called the store-credential command.")
 
