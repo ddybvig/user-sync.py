@@ -44,12 +44,24 @@ class CredentialManager:
 
     def store(self):
         yaml = YAML()
-        stream = open(os.path.abspath(r'C:\Users\Dale.Dybvig\repos\user-sync.py\user_sync\resources\connector-ldap.yml'))
-        another_stream = open(os.path.relpath(r'resources\connector-ldap.yml'))
-        ldap = yaml.load(another_stream)
-        # for key, value in ldap.items():
-        #     if key == 'password':
-        #         value = 'secure: XXXXXXX'
-        password = ldap['password']
-        ldap = yaml.dump(ldap, sys.stdout)
-        return ldap
+        # replace the ldap account password with a secure key
+        ldap_path = os.path.relpath(r'resources\connector-ldap.yml')
+        with open(ldap_path) as ldap:
+            secure_ldap = yaml.load(ldap)
+        secure_ldap['password'] = {'secure': 'XXXXXXXX'}
+        with open(ldap_path, 'w') as ldap:
+            # ldap = yaml.dump(ldap, sys.stdout)
+            yaml.dump(secure_ldap, ldap)
+        # replace the umapi keys with secure keys
+        umapi_path = os.path.relpath(r'resources\connector-umapi.yml')
+        with open(umapi_path) as umapi:
+            secure_umapi = yaml.load(umapi)
+        secure_umapi['enterprise']['org_id'] = {'secure': 'XXXXXXXX'}
+        secure_umapi['enterprise']['api_key'] = {'secure': 'XXXXXXXX'}
+        secure_umapi['enterprise']['client_secret'] = {'secure': 'XXXXXXXX'}
+        secure_umapi['enterprise']['tech_acct'] = {'secure': 'XXXXXXXX'}
+        with open(umapi_path, 'w') as umapi:
+            yaml.dump(secure_umapi, umapi)
+
+
+
