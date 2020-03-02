@@ -16,6 +16,8 @@ if (isinstance(keyring.get_keyring(), keyring.backends.fail.Keyring) or
         isinstance(keyring.get_keyring(), keyring.backends.chainer.ChainerBackend)):
     keyring.set_keyring(keyrings.cryptfile.cryptfile.CryptFileKeyring())
 
+yaml = YAML()
+
 
 class CredentialManager:
 
@@ -42,26 +44,46 @@ class CredentialManager:
                 raise AssertionException("Value for {0} too long for backend to store: {1}".format(identifier, str(e)))
             raise e
 
-    def store(self):
-        yaml = YAML()
-        # replace the ldap account password with a secure key
-        # ldap_path = os.path.relpath(r'resources\connector-ldap.yml')
-        with open('connector-ldap.yml') as ldap:
-            secure_ldap = yaml.load(ldap)
-        secure_ldap['password'] = {'secure': 'XXXXXXXX'}
-        with open('connector-ldap.yml', 'w') as ldap:
-            # ldap = yaml.dump(ldap, sys.stdout)
-            yaml.dump(secure_ldap, ldap)
-        # replace the umapi keys with secure keys
-        # umapi_path = os.path.relpath(r'resources\connector-umapi.yml')
-        with open('connector-umapi.yml') as umapi:
-            secure_umapi = yaml.load(umapi)
-        secure_umapi['enterprise']['org_id'] = {'secure': 'XXXXXXXX'}
-        secure_umapi['enterprise']['api_key'] = {'secure': 'XXXXXXXX'}
-        secure_umapi['enterprise']['client_secret'] = {'secure': 'XXXXXXXX'}
-        secure_umapi['enterprise']['tech_acct'] = {'secure': 'XXXXXXXX'}
-        with open('connector-umapi.yml', 'w') as umapi:
-            yaml.dump(secure_umapi, umapi)
+    def store_umapi(self, filename):
+        data = self.read(filename)
+        data['enterprise']['org_id'] = {'secure': 'XXXXXXXX'}
+        data['enterprise']['api_key'] = {'secure': 'XXXXXXXX'}
+        data['enterprise']['client_secret'] = {'secure': 'XXXXXXXX'}
+        data['enterprise']['tech_acct'] = {'secure': 'XXXXXXXX'}
+        self.write(filename, data)
 
+    def store_ldap(self, filename):
+        data = self.read(filename)
+        data['password'] = {'secure': 'XXXXXXXX'}
+        self.write(filename, data)
 
+    def store_okta(self, filename):
+        data = self.read(filename)
+        data['host'] = {'secure': 'XXXXXXXX'}
+        data['api_token'] = {'secure': 'XXXXXXXX'}
+        self.write(filename, data)
 
+    def store_console(self, filename):
+        data = self.read(filename)
+        data['integration']['org_id'] = {'secure': 'XXXXXXXX'}
+        data['integration']['api_key'] = {'secure': 'XXXXXXXX'}
+        data['integration']['client_secret'] = {'secure': 'XXXXXXXX'}
+        data['integration']['tech_acct'] = {'secure': 'XXXXXXXX'}
+        self.write(filename, data)
+
+    def read(self, filename):
+        with open(filename) as file:
+            file_dict = yaml.load(file)
+        return file_dict
+
+    def write(self, filename, data):
+        with open(filename, 'w') as file:
+            yaml.dump(data, file)
+
+    def retrieve(self, filename):
+        credentials = self.read(filename)
+        # some logic to remove the irrelevant keys
+        return credentials
+
+    def revert(self):
+        pass
