@@ -45,22 +45,22 @@ class CredentialManager:
     def store(self):
         yaml = YAML()
         # replace the ldap account password with a secure key
-        ldap_path = os.path.relpath(r'resources\connector-ldap.yml')
-        with open(ldap_path) as ldap:
+        # ldap_path = os.path.relpath(r'resources\connector-ldap.yml')
+        with open('connector-ldap.yml') as ldap:
             secure_ldap = yaml.load(ldap)
         secure_ldap['password'] = {'secure': 'XXXXXXXX'}
-        with open(ldap_path, 'w') as ldap:
+        with open('connector-ldap.yml', 'w') as ldap:
             # ldap = yaml.dump(ldap, sys.stdout)
             yaml.dump(secure_ldap, ldap)
         # replace the umapi keys with secure keys
-        umapi_path = os.path.relpath(r'resources\connector-umapi.yml')
-        with open(umapi_path) as umapi:
+        # umapi_path = os.path.relpath(r'resources\connector-umapi.yml')
+        with open('connector-umapi.yml') as umapi:
             secure_umapi = yaml.load(umapi)
         secure_umapi['enterprise']['org_id'] = {'secure': 'XXXXXXXX'}
         secure_umapi['enterprise']['api_key'] = {'secure': 'XXXXXXXX'}
         secure_umapi['enterprise']['client_secret'] = {'secure': 'XXXXXXXX'}
         secure_umapi['enterprise']['tech_acct'] = {'secure': 'XXXXXXXX'}
-        with open(umapi_path, 'w') as umapi:
+        with open('connector-umapi.yml', 'w') as umapi:
             yaml.dump(secure_umapi, umapi)
 
 
