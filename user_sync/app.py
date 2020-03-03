@@ -375,12 +375,11 @@ def store():
     This is an automated process
     """
     credential_manager = CredentialManager()
-    credential_manager.store()
     click.echo("Using backend: " + credential_manager.keyring_name)
     click.echo("You have called the store-credential command.")
 
 
-@credentials.command(help="Retreives currently stored credentials under the username 'user_sync'.")
+@credentials.command(help="Retrieves currently stored credentials under the username 'user_sync'.")
 @click.option('--revert', default=False, is_flag=True, help="Reverts configuration files to plaintext state.")
 def retrieve(revert):
     """
@@ -396,7 +395,7 @@ def retrieve(revert):
     click.echo("you have called the retrieve credential command")
 
 
-@credentials.command(help="Allows for east fetch of stored credentials on any platform.", name="get")
+@credentials.command(help="Allows for easy fetch of stored credentials on any platform.", name="get")
 @click.option('-i', '--identifier', prompt='Enter identifier',
               help="Name of service you want to get a value for.  Username will always be 'user_sync'.")
 def get_credential(identifier):

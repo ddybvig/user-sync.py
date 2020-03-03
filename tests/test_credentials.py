@@ -34,6 +34,7 @@ def test_set_long():
         cm.set(identifier, value)
         assert cm.get(identifier) == value
 
+
 def test_get_not_valid():
     # This is an identifier which should not exist in your backed.
     identifier = 'DoesNotExist'
@@ -41,3 +42,50 @@ def test_get_not_valid():
     # is thrown in this case. This case is handled in app.py, which will throw an AssertionException if
     # CredentialManager.get() returns None.
     assert CredentialManager().get(identifier) is None
+
+
+def test_store_umapi():
+    umapi_path = os.path.relpath(r'fixture\connector-umapi.yml')
+    credman = CredentialManager()
+    unchanged_umapi_dict = credman.read(umapi_path)
+    credman.store_umapi(umapi_path)
+    secure_umapi_dict = credman.read(umapi_path)
+    assert secure_umapi_dict['enterprise']['org_id'] == {'secure': 'XXXXXXXX'}
+    assert secure_umapi_dict['enterprise']['api_key'] == {'secure': 'XXXXXXXX'}
+    assert secure_umapi_dict['enterprise']['client_secret'] == {'secure': 'XXXXXXXX'}
+    assert secure_umapi_dict['enterprise']['tech_acct'] == {'secure': 'XXXXXXXX'}
+    credman.write(umapi_path, unchanged_umapi_dict)
+
+
+def test_store_ldap():
+    ldap_path = os.path.relpath(r'fixture\connector-ldap.yml')
+    credman = CredentialManager()
+    unchanged_ldap_dict = credman.read(ldap_path)
+    credman.store_ldap(ldap_path)
+    secure_ldap_dict = credman.read(ldap_path)
+    assert secure_ldap_dict['password'] == {'secure': 'XXXXXXXX'}
+    credman.write(ldap_path, unchanged_ldap_dict)
+
+
+def test_store_okta():
+    okta_path = os.path.relpath(r'fixture\connector-okta.yml')
+    credman = CredentialManager()
+    unchanged_okta_dict = credman.read(okta_path)
+    credman.store_okta(okta_path)
+    secure_okta_dict = credman.read(okta_path)
+    assert secure_okta_dict['host'] == {'secure': 'XXXXXXXX'}
+    assert secure_okta_dict['api_token'] == {'secure': 'XXXXXXXX'}
+    credman.write(okta_path, unchanged_okta_dict)
+
+
+def test_store_console():
+    console_path = os.path.relpath(r'fixture\connector-adobe-console.yml')
+    credman = CredentialManager()
+    unchanged_console_dict = credman.read(console_path)
+    credman.store_console(console_path)
+    secure_console_dict = credman.read(console_path)
+    assert secure_console_dict['integration']['org_id'] == {'secure': 'XXXXXXXX'}
+    assert secure_console_dict['integration']['api_key'] == {'secure': 'XXXXXXXX'}
+    assert secure_console_dict['integration']['client_secret'] == {'secure': 'XXXXXXXX'}
+    assert secure_console_dict['integration']['tech_acct'] == {'secure': 'XXXXXXXX'}
+    credman.write(console_path, unchanged_console_dict)
