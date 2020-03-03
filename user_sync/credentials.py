@@ -44,33 +44,6 @@ class CredentialManager:
                 raise AssertionException("Value for {0} too long for backend to store: {1}".format(identifier, str(e)))
             raise e
 
-    def store_umapi(self, filename):
-        data = self.read(filename)
-        data['enterprise']['org_id'] = {'secure': 'XXXXXXXX'}
-        data['enterprise']['api_key'] = {'secure': 'XXXXXXXX'}
-        data['enterprise']['client_secret'] = {'secure': 'XXXXXXXX'}
-        data['enterprise']['tech_acct'] = {'secure': 'XXXXXXXX'}
-        self.write(filename, data)
-
-    def store_ldap(self, filename):
-        data = self.read(filename)
-        data['password'] = {'secure': 'XXXXXXXX'}
-        self.write(filename, data)
-
-    def store_okta(self, filename):
-        data = self.read(filename)
-        data['host'] = {'secure': 'XXXXXXXX'}
-        data['api_token'] = {'secure': 'XXXXXXXX'}
-        self.write(filename, data)
-
-    def store_console(self, filename):
-        data = self.read(filename)
-        data['integration']['org_id'] = {'secure': 'XXXXXXXX'}
-        data['integration']['api_key'] = {'secure': 'XXXXXXXX'}
-        data['integration']['client_secret'] = {'secure': 'XXXXXXXX'}
-        data['integration']['tech_acct'] = {'secure': 'XXXXXXXX'}
-        self.write(filename, data)
-
     def read(self, filename):
         with open(filename) as file:
             file_dict = yaml.load(file)
@@ -80,10 +53,3 @@ class CredentialManager:
         with open(filename, 'w') as file:
             yaml.dump(data, file)
 
-    def retrieve(self, filename):
-        credentials = self.read(filename)
-        # some logic to remove the irrelevant keys
-        return credentials
-
-    def revert(self):
-        pass
