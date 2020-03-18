@@ -26,7 +26,7 @@ following subcommands.
 | Subcommand | Description |
 |------------------------------|------------------|
 | `store` | Replaces the plaintext values of sensitive credentials in yaml files with secure keys. |
-| `retrieve` | Retrieves currently stored credentials under the username "user_sync." |
+| `retrieve` | Retrieves all stored sensitive credentials from your OS secure storage and prints them to the console. |
 | `revert` | Reverts the yaml files to a plaintext state. |
 | `get` | Takes one parameter `--identifier [identifier]` either as a command line option or from a user prompt. Keyring then retrieves the corresponding credential from the backend. |
 | `set` | Takes two parameters, `--identifier [identifier]` and `--value [value]` either as command line options or from user prompts. Keyring then creates a new credential in the backend for the specified identifier. The username will be "user_sync." |
