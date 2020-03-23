@@ -25,8 +25,8 @@ following subcommands.
 
 | Subcommand | Description |
 |------------------------------|------------------|
-| `store` | Replaces the plaintext values of sensitive credentials in configuration files with secure keys. |
-| `retrieve` | Retrieves all stored credentials for the User Sync Tool from your OS secure storage and prints them to the console. |
+| `store` | Stores all sensitive credentials for the User Sync Tool in OS Secure storage, then replaces the plaintext values in the configuration files with secure keys. |
+| `retrieve` | Retrieves all stored credentials for the User Sync Tool from OS secure storage and prints them to the console. |
 | `revert` | Retrieves all stored credentials for the User Sync Tool from OS Secure storage, then replaces secure keys in the configuration files with the retrieved plaintext values. |
 | `get` | Takes one parameter `--identifier [identifier]` either as a command line option or from a user prompt. Keyring then retrieves the corresponding credential from the backend. |
 | `set` | Takes two parameters, `--identifier [identifier]` and `--value [value]` either as command line options or from user prompts. Keyring then creates a new credential in the backend for the specified identifier. The username will be "user_sync." |
@@ -73,16 +73,35 @@ ldap_password: password
 Similar to ```set```, ```get``` can also be run without the prompt by
 passing in the identifier as a parameter.
 
-Successful output from ```store``` subcommand. 
+The ```store``` subcommand will automatically store all sensitive credentials for
+the User Sync Tool in OS Secure storage. This snippet 
+of ```connector-ldap.yml``` shows the unsecured credential prior to running ```store```:
+
+```
+username: ldapuser@example.com
+password: ldap_password
+host: ldap://host
+```
+
+After running ```store```, the value of the sensitive key will be replaced with a 
+new key-value pair in which the key is the string "secure" and the value is 
+the absolute path to the configuration file appended
+with ":" and the original key as shown below.
+
+```
+username: ldapuser@example.com
+password: 
+    secure: C:\Program Files\Adobe\Adobe User Sync Tool\connector-ldap.yml:password
+host: ldap://host
+```
+<Include a screenshot of the credential in Windows storage?>
+
+Successful console output after running the ```store``` command:
 
 ```
 (venv) C:\Program Files\Adobe\Adobe User Sync Tool>python user-sync.pex credentials store
-             <output from store goes here>
+   <output from store goes here>
 ```
-
-Example of what the config files look like after running ```store```.
-
-```config file snippet showing the secure key```
 
 Retrieve stuff goes here:
 
