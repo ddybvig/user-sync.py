@@ -73,8 +73,10 @@ ldap_password: password
 Similar to ```set```, ```get``` can also be run without the prompt by
 passing in the identifier as a parameter.
 
-The ```store``` subcommand will automatically store all sensitive credentials for
-the User Sync Tool in OS Secure storage. This snippet 
+The ```store``` subcommand does not take any parameters. Rather,
+it will automatically place all sensitive credentials contained in
+the configuration files specified in ```user-sync-config.yml``` in
+OS Secure storage. This snippet 
 of ```connector-ldap.yml``` shows the unsecured credential prior to running ```store```:
 
 ```
@@ -103,13 +105,36 @@ Successful console output after running the ```store``` command:
    <output from store goes here>
 ```
 
-Retrieve stuff goes here:
+Similar to ```store```, ```retrieve``` does not take any arguments. Rather, 
+it will automatically read the configuration files specified in 
+```user-sync-config.yml``` to find the values that have been stored securely.
+Then it uses Keyring to retrieve these values from OS Secure storage. These
+credentials will be printed to the console, but the configuration files
+will remain in their secure state. Successful output is shown below.
 
-```blah blah blah```
+```
+(venv) C:\Program Files\Adobe\Adobe User Sync Tool>python user-sync.pex credentials retrieve
+   <output from retrieve goes here>
+```
 
-Revert stuff goes here:
+Note that since ```retrieve``` looks for the relevant credentials using
+the absolute path of the configuration file as part of the identifier, 
+changing the directory of the User Sync Tool between using ```store``` and
+```retrieve``` will mean that ```retrieve``` will be unable to find the 
+stored credentials. Running ```store``` again in the new directory will solve
+this problem.
 
-```blah blah blah```
+The ```revert``` subcommand is essentially the inverse of ```store```.
+It will replace any secured keys in the configuration 
+files with their original plaintext values. Note that OS Secure storage
+will still hold these credentials even after running revert.
+
+Successful output from ```revert``` is shown below.
+
+```
+(venv) C:\Program Files\Adobe\Adobe User Sync Tool>python user-sync.pex credentials revert
+   <output from retrieve goes here>
+```
 
 
 
