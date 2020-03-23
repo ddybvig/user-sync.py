@@ -96,7 +96,10 @@ password:
     secure: C:\Program Files\Adobe\Adobe User Sync Tool\connector-ldap.yml:password
 host: ldap://host
 ```
-<Include a screenshot of the credential in Windows storage?>
+
+In the example above, Keyring has used ```C:\Program Files\Adobe\Adobe User Sync Tool\connector-ldap.yml:password```
+as the identifier (called "Internet or Network Address" on Windows)
+in OS Secure storage.
 
 Successful console output after running the ```store``` command:
 
@@ -133,7 +136,7 @@ Successful output from ```revert``` is shown below.
 
 ```
 (venv) C:\Program Files\Adobe\Adobe User Sync Tool>python user-sync.pex credentials revert
-   <output from retrieve goes here>
+   <output from revert goes here>
 ```
 
 
