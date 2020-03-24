@@ -120,13 +120,6 @@ will remain in their secure state. Successful output is shown below.
    <output from retrieve goes here>
 ```
 
-Note that since ```retrieve``` looks for the relevant credentials using
-the absolute path of the configuration file as part of the identifier, 
-changing the directory of the User Sync Tool between using ```store``` and
-```retrieve``` will mean that ```retrieve``` will be unable to find the 
-stored credentials. Running ```store``` again in the new directory will solve
-this problem.
-
 The ```revert``` subcommand is essentially the inverse of ```store```.
 It will replace any secured keys in the configuration 
 files with their original plaintext values. Note that OS Secure storage
