@@ -3,7 +3,7 @@ layout: default
 lang: en
 nav_link: Deployment Best Practices
 nav_level: 2
-nav_order: 70
+nav_order: 80
 ---
 
 
@@ -17,7 +17,7 @@ nav_order: 70
 
 ---
 
-[Previous Section](advanced_configuration.md)
+[Previous Section](advanced_configuration.md)  \| [Next Section](additional_tools.md)
 
 ---
 
@@ -75,25 +75,7 @@ detailed in the next two sections.
 
 ### Storing Credentials in OS Level Storage
 
-To setup User Sync to pull credentials from the Python Keyring OS credential store, set the connector-umapi.yml and connector-ldap.yml files as follows:
-
-connector-umapi.yml
-
-	server:
-	
-	enterprise:
-	  org_id: your org id
-	  secure_api_key_key: umapi_api_key
-	  secure_client_secret_key: umapi_client_secret
-	  tech_acct: your tech account@techacct.adobe.com
-	  secure_priv_key_data_key: umapi_private_key_data
-
-Note the change of `api_key`, `client_secret`, and `priv_key_path` to `secure_api_key_key`, `secure_client_secret_key`, and `secure_priv_key_data_key`, respectively.  These alternate configuration values give the key names to be looked up in the user keychain (or the equivalent service on other platforms) to retrieve the actual credential values.  In this example, the credential key names are `umapi_api_key`, `umapi_client_secret`, and `umapi_private_key_data`.
-
-The contents of the private key file is used as the value of `umapi_private_key_data` in the credential store.  This can only be done on platforms other than Windows.  See below for how to secure the
-private key file on Windows.
-
-The credential values will be looked up in the secure store using org_id as the username value and the key names in the config file as the key name.
+Refer to the (URL to Additional Tools)
 
 A slight variant on this approach is available (in User Sync version 2.1.1 or later) to encrypt the
 private key file using the standard RSA encrypted representation for private keys (known as the
@@ -110,31 +92,25 @@ private key file:
 On Windows, you will need to run openssl from Cygwin or some other provider; it is not included
 in the standard Windows distribution.
 
-Next, use the following configuration items in connector-umapi.yml.  The last two items below cause
-the decryption passphrase to be obtained from the secure credential store, and reference the encrypted
-private key file, respectively:
+Next, uncomment the line Priv_key_pass. The value must be the password for decrypting the private key.  
 
 	server:
 	
 	enterprise:
 	  org_id: your org id
-	  secure_api_key_key: umapi_api_key
-	  secure_client_secret_key: umapi_client_secret
+	  api_key: umapi_api_key
+	  client_secret: umapi_client_secret
 	  tech_acct: your tech account@techacct.adobe.com
-	  secure_priv_key_pass_key: umapi_private_key_passphrase
+	  priv_key_pass: umapi_private_key_passphrase
 	  priv_key_path: private-encrypted.key
 
-Finally, add the passphrase to the secure store as an entry with the username or url as the org Id, the key
-name as `umapi_private_key_passphrase` to match the `secure_priv_key_pass_key` config file entry, and the value
-as the passphrase.  (You can also inline the encrypted private key by placing the data in the
-connector-umapi.yml file under the key `priv_key_data` instead of using `priv_key_path`.)
-
+This passphrase can be saved using crendential store command
 This ends the description of the variant where the RSA private key encryption is used.
 
 connector-ldap.yml
 
 	username: "your ldap account username"
-	secure_password_key: ldap_password 
+	password: ldap_password 
 	host: "ldap://ldap server name"
 	base_dn: "DC=domain name,DC=com"
 
@@ -142,7 +118,7 @@ The LDAP access password will be looked up using the specified key name
 (`ldap_password` in this example) with the user being the specified username
 config value.
 
-Credentials are stored in the underlying operating system secure store.  The specific storage system depends in the operating system.
+Credentials can be stored in the underlying operating system secure store.  The specific storage system depends in the operating system.
 
 | OS | Credential Store |
 |------------|--------------|
@@ -153,9 +129,13 @@ Credentials are stored in the underlying operating system secure store.  The spe
 
 On Linux, the secure storage application would have been installed and configured by the OS vendor.
 
-The credentials are added to the OS secure storage and given the username and credential id that you will use to specify the credential.  For umapi credentials, the username is the organization id.  For the LDAP password credential, the username is the LDAP username.  You can pick any identifier you wish for the specific credentials; they must match between what is in the credential store and the name used in the configuration file.  Suggested values for the key names are shown in the examples above.
 
 
+### Storing Credentials Via Command Line Argument
+Refer to the (URL to Additional Tools)
+The ```credentials``` command allows the user to securely get and
+set credentials through the user-sync tool instead of going through the native process.  This is especially helpful on linux platforms, where it is not immediately obvious how to set credentials.  All credentials stored this way are stored under the username 'user_sync'.  See the credential manager section in additional tools for usage.
+ 
 ### Storing Credential Files in External Management Systems
 
 As an alternative to storing credentials in the local credential store, it is possible to integrate User Sync with some other system or encryption mechanism.  To support such integrations, it is possible to store the entire configuration files for umapi and ldap externally in some other system or format.
@@ -220,7 +200,7 @@ The following example shows how to set up a batch file `run_sync.bat` in
 Windows.
 
 ```sh
-python C:\\...\\user-sync.pex --users file users-file.csv --process-groups | findstr /I "WARNING ERROR CRITICAL ---- ==== Number" > temp.file.txt
+C:\\...\\user-sync.exe --users file users-file.csv --process-groups | findstr /I "WARNING ERROR CRITICAL ---- ==== Number" > temp.file.txt
 rem email the contents of temp.file.txt to the user sync administration
 sendmail -s “Adobe User Sync Report for today” UserSyncAdmins@example.com < temp.file.txt
 ```
@@ -285,6 +265,30 @@ logging:
   log_file_name_format: "user-sync.log"
 ```
 
+### Disabling SSL Verification
+
+In environments where SSL inspection is enforced at the firewall, the UMAPI client can encounter the following error:
+
+`CRITICAL main - UMAPI connection to org id 'someUUIDvalue@AdobeOrg' failed: [SSL: CERTIFICATE_VERIFY_FAILED] `
+
+This is because the requests module is not aware of the middle-man certificate required for SSL inspection.  The recommended solution to this problem is to specify a path to the certificate bundle using the  REQUESTS_CA_BUNDLE environment variable (see https://helpx.adobe.com/enterprise/kb/UMAPI-UST.html for details).  However, in some cases following these steps does not solve the problem.  The next logical step is to disable SSL inspection on the firewall for the UMAPI traffic.  If, however, this is not permitted, you may work around the issue by disabling SSL verification for user-sync.  
+
+Disabling the verification is unsafe, and leaves the umapi client vulnerable to middle man attacks, so it is recommended to  avoid disabling it if at all possible.  The umapi client only ever targets two URLs - the usermanagement endpoint and the ims endpoint - both of which are secure Adobe URL's.  In addition, since this option is only recommended for use in a secure network environment, any potential risk is further mitigated.
+
+To bypass the ssl verification, update the umapi config as follows:
+
+```yaml
+server:
+  ssl_verify: False
+```
+
+During the calls, you will also see  a warning from requests:
+
+"InsecureRequestWarning: Unverified HTTPS request is being made to host 'usermanagement-stage.adobe.io'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
+  InsecureRequestWarning"
+
+
 ---
 
-[Previous Section](advanced_configuration.md)
+[Previous Section](advanced_configuration.md)  \| [Next Section](additional_tools.md)
+
